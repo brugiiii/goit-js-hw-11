@@ -22,43 +22,46 @@ let gallery = new SimpleLightbox('.gallery a');
 refs.formEl.addEventListener('submit', onSubmit);
 loadMoreBtn.refs.button.addEventListener('click', onloadMore);
 
-function onSubmit(e) {
-  e.preventDefault();
+async function onSubmit(e) {
+  try {
+    e.preventDefault();
+    loadMoreBtn.show();
+    loadMoreBtn.disable();
+    clearGalleryContainer();
+    fetchApiService.resetPage();
 
-  const value = e.currentTarget.elements.searchQuery.value;
-  fetchApiService.request = value.trim();
+    const value = e.currentTarget.elements.searchQuery.value.trim();
+    fetchApiService.request = value;
 
-  loadMoreBtn.show();
-  loadMoreBtn.disable();
+    const photos = await fetchApiService.fetchPhotos();
+    if (photos.length === 0 || !value) {
+      throw new Error();
+    } else if (photos.length < 40) {
+      noMorePhotos();
+    }
 
-  fetchApiService.resetPage();
-
-  clearGalleryContainer();
-
-  fetchApiService
-    .fetchPhotos()
-    .then(res => {
-      if (res.length === 0 || !value) {
-        throw new Error();
-      }
-
-      makeMarkup(res);
-      gallery.refresh();
-      loadMoreBtn.enable();
-
-      Notify.success(`Hooray! We found ${res.length} images.`);
-    })
-    .catch(onError);
-}
-
-function onloadMore() {
-  loadMoreBtn.disable();
-  fetchApiService.fetchPhotos().then(res => {
-    makeMarkup(res);
-    pageScroll();
+    makeMarkup(photos);
     gallery.refresh();
     loadMoreBtn.enable();
-  });
+
+    Notify.success(`Hooray! We found ${photos.length} images.`);
+  } catch (error) {
+    onError();
+  }
+}
+
+async function onloadMore() {
+  try {
+    loadMoreBtn.disable();
+    const photos = await fetchApiService.fetchPhotos();
+    makeMarkup(photos);
+    gallery.refresh();
+    loadMoreBtn.enable();
+
+    pageScroll();
+  } catch (error) {
+    onError();
+  }
 }
 
 function makeMarkup(res) {
@@ -77,12 +80,16 @@ function onError() {
 }
 
 function pageScroll() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+  const cardHeight =
+    document.querySelector('.gallery').firstElementChild.offsetHeight;
 
   window.scrollBy({
     top: cardHeight * 2,
     behavior: 'smooth',
   });
+}
+
+export default function noMorePhotos() {
+  loadMoreBtn.hide();
+  Notify.info("We're sorry, but you've reached the end of search results.");
 }
