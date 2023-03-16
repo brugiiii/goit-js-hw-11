@@ -3,20 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Page title</title>
-    <link rel="stylesheet" href="./sass/index.scss" />
-    <script type="module" src="./index.js"></script>
+    <title>Homework 11</title>
   </head>
   <body>
     <form class="search-form" id="search-form">
-      <input
-        type="text"
-        name="searchQuery"
-        autocomplete="off"
-        placeholder="Search images..."
-      />
-      <button type="submit">Search</button>
+      <label class="label"
+        ><input
+          type="text"
+          name="searchQuery"
+          autocomplete="off"
+          placeholder="Search images..." />
+        <button type="submit" class="search-button">
+          <svg class="search-icon" width="15" height="15">
+            <use href="./images/symbol-defs.svg#icon-search"></use>
+          </svg></button
+      ></label>
     </form>
-    <script src="./js/index.js"></script>
+    <div class="gallery">
+      <!-- Картки зображень -->
+    </div>
+    <button
+      class="btn btn-primary load-more-btn"
+      type="button"
+      data-action="load-more"
+      disabled
+    >
+      <span
+        class="spinner-border spinner-border-sm"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      <span class="label">Show more</span>
+    </button>
+    <script src="./js/index.js" type="module"></script>
   </body>
 </html>
