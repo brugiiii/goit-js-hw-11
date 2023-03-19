@@ -23,17 +23,18 @@ refs.formEl.addEventListener('submit', onSubmit);
 loadMoreBtn.refs.button.addEventListener('click', onloadMore);
 
 async function onSubmit(e) {
+  e.preventDefault();
+  loadMoreBtn.show();
+  loadMoreBtn.disable();
+  clearGalleryContainer();
+  fetchApiService.resetPage();
+
+  const value = e.currentTarget.elements.searchQuery.value.trim();
+  fetchApiService.request = value;
+
   try {
-    e.preventDefault();
-    loadMoreBtn.show();
-    loadMoreBtn.disable();
-    clearGalleryContainer();
-    fetchApiService.resetPage();
-
-    const value = e.currentTarget.elements.searchQuery.value.trim();
-    fetchApiService.request = value;
-
     const photos = await fetchApiService.fetchPhotos();
+
     if (photos.length === 0 || !value) {
       throw new Error();
     } else if (photos.length < 40) {
@@ -41,27 +42,33 @@ async function onSubmit(e) {
     }
 
     makeMarkup(photos);
-    gallery.refresh();
-    loadMoreBtn.enable();
-
     Notify.success(`Hooray! We found ${photos.length} images.`);
   } catch (error) {
     onError();
   }
+
+  gallery.refresh();
+  loadMoreBtn.enable();
 }
 
 async function onloadMore() {
+  loadMoreBtn.disable();
   try {
-    loadMoreBtn.disable();
     const photos = await fetchApiService.fetchPhotos();
+    console.log(photos);
     makeMarkup(photos);
-    gallery.refresh();
-    loadMoreBtn.enable();
 
-    pageScroll();
+    if (photos.length < 40) {
+      noMorePhotos();
+    }
   } catch (error) {
     onError();
   }
+
+  gallery.refresh();
+  loadMoreBtn.enable();
+
+  pageScroll();
 }
 
 function makeMarkup(res) {
@@ -89,7 +96,7 @@ function pageScroll() {
   });
 }
 
-export default function noMorePhotos() {
+function noMorePhotos() {
   loadMoreBtn.hide();
   Notify.info("We're sorry, but you've reached the end of search results.");
 }

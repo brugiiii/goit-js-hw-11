@@ -1,5 +1,4 @@
 import axios from 'axios';
-import noMorePhotos from './index';
 
 export default class FetchApiService {
   constructor() {
@@ -8,25 +7,21 @@ export default class FetchApiService {
   }
 
   async fetchPhotos() {
-    try {
-      const options = {
-        params: {
-          key: '34287533-73b6140ff373420767809a55e',
-          q: `${this._request}`,
-          image_type: 'photo',
-          orientation: 'horizontal',
-          safesearch: 'true',
-          per_page: '40',
-          page: `${this.page}`,
-        },
-      };
+    const options = {
+      params: {
+        key: '34287533-73b6140ff373420767809a55e',
+        q: `${this._request}`,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: 'true',
+        per_page: '40',
+        page: `${this.page}`,
+      },
+    };
 
-      const res = await axios.get('https://pixabay.com/api/', options);
-      this.page += 1;
-      return res.data.hits;
-    } catch (error) {
-      noMorePhotos();
-    }
+    const res = await axios.get('https://pixabay.com/api/', options);
+    this.page += 1;
+    return res.data.hits;
   }
 
   resetPage() {
